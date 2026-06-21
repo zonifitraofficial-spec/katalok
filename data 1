@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Sales</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+  body { background: #f5f5f5; }
+  
+  header {
+    background: #2563eb;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .search-box {
+    padding: 12px;
+    background: white;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #eee;
+  }
+  
+  .card h3 {
+    font-size: 14px;
+    margin: 8px 0 4px;
+    color: #333;
+  }
+  
+  .card .price {
+    font-size: 15px;
+    font-weight: bold;
+    color: #2563eb;
+    margin-bottom: 4px;
+  }
+  
+  .card .stock {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .order-box {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    align-items: center;
+  }
+  
+  .order-box label {
+    font-size: 13px;
+    color: #333;
+  }
+  
+  .order-box input {
+    width: 50%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  
+  .total {
+    font-size: 14px;
+    font-weight: bold;
+    color: #16a34a;
+    margin: 8px 0;
+  }
+  
+  .btn-wa {
+    width: 100%;
+    padding: 8px;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .btn-wa:active {
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 400px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>📦 Katalog Sales</header>
+
+<div class="search-box">
+  <input type="text" id="search" placeholder="Cari produk..." onkeyup="searchProduct()">
+</div>
+
+<div class="grid" id="product-grid">
+  
+  <!-- PRODUK 1 -->
+  <div class="card">
+    <img src="images/indomil-saset.jpg" alt="Indomil saset">
+    <h3>Indomil saset</h3>
+    <div class="price">Rp 130.000 / dus</div>
+    <div class="stock">Stok: 25 dus</div>
+    
+    <div class="order-box">
+      <label>Dus:</label>
+      <input type="number" id="dus-1" placeholder="0" min="0" value="0" oninput="updateTotal(1)">
+      <label>Pcs:</label>
+      <input type="number" id="pcs-1" placeholder="0" min="0" max="11" value="0" oninput="updateTotal(1)">
+    </div>
+    
+    <div class="total" id="total-1">Total: Rp 0</div>
+    <button class="btn-wa" onclick="shareWA('Indomil saset', 130000, 12, 1)">Order via WhatsApp</button>
+  </div>
+
+  <!-- PRODUK 2 - Copy block ini buat tambah produk -->
+  <div class="card">
+    <img src="images/indomil-kaleng.jpg" alt="Indomil kaleng">
+    <h3>Indomil kaleng</h3>
+    <div class="price">Rp 500.000 / dus</div>
+    <div class="stock">Stok: 5 dus</div>
+    
+    <div class="order-box">
+      <label>Dus:</label>
+      <input type="number" id="dus-2" placeholder="0" min="0" value="0" oninput="updateTotal(2)">
+      <label>Pcs:</label>
+      <input type="number" id="pcs-2" placeholder="0" min="0" max="11" value="0" oninput="updateTotal(2)">
+    </div>
+    
+    <div class="total" id="total-2">Total: Rp 0</div>
+    <button class="btn-wa" onclick="shareWA('Indomil kaleng', 500000, 12, 2)">Order via WhatsApp</button>
+  </div>
+
+</div>
+
+<script>
+const ISI_PER_DUS = 12; // Ganti kalau 1 dus isi nya bukan 12 pcs
+
+function updateTotal(id) {
+  let dus = parseInt(document.getElementById('dus-' + id).value) || 0;
+  let pcs = parseInt(document.getElementById('pcs-' + id).value) || 0;
+  
+  if(pcs >= ISI_PER_DUS) {
+    document.getElementById('pcs-' + id).value = ISI_PER_DUS - 1;
+    pcs = ISI_PER_DUS - 1;
+  }
+  
+  // Ambil harga dari onclick button
+  let btn = document.querySelector(`button[onclick*="shareWA('${document.querySelector('#product-grid').children[id-1].querySelector('h3').innerText}'"]`);
+  let hargaPerDus = btn ? parseInt(btn.getAttribute('onclick').split(',')[1].trim()) : 0;
+  
+  let totalHarga = (dus * hargaPerDus) + (pcs * (hargaPerDus / ISI_PER_DUS));
+  document.getElementById('total-' + id).innerText = 'Total: Rp ' + Math.round(totalHarga).toLocaleString('id-ID');
+}
+
+function shareWA(nama, hargaPerDus, isiPerDus, id) {
+  let dus = parseInt(document.getElementById('dus-' + id).value) || 0;
+  let pcs = parseInt(document.getElementById('pcs-' + id).value) || 0;
+  
+  if(dus == 0 && pcs == 0) {
+    alert('Masukkan jumlah order dulu');
+    return;
+  }
+  
+  let totalPcs = (dus * isiPerDus) + pcs;
+  let totalHarga = (dus * hargaPerDus) + (pcs * (hargaPerDus / isiPerDus));
+  
+  let text = `Halo, saya mau order:\n*${nama}*\n`;
+  if(dus > 0) text += `- ${dus} Dus\n`;
+  if(pcs > 0) text += `- ${pcs} Pcs\n`;
+  text += `- Total: ${totalPcs} Pcs\n`;
+  text += `- Total Harga: Rp ${Math.round(totalHarga).toLocaleString('id-ID')}\n\nApakah masih tersedia?`;
+  
+  let url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function searchProduct() {
+  let input = document.getElementById('search').value.toLowerCase();
+  let cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    let title = card.querySelector('h3').innerText.toLowerCase();
+    card.style.display = title.includes(input) ? 'block' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>
